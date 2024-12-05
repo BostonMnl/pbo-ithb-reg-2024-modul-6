@@ -2,6 +2,8 @@ package model.classes;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -208,8 +210,9 @@ public class Penduduk {
     }
 
     public static boolean insertData(Penduduk penduduk) {
-        String query = "INSERT INTO 'penduduk'('nik', 'nama', 'tempat_lahir', 'tanggal_lahir', 'jenis_kelamin', 'gol_darah', 'alamat', 'rt_rw', 'kel_desa', 'kecamatan', 'agama', 'status_perkawinan', 'pekerjaan', 'kewarganegaraan', 'foto', 'tanda_tangan', 'berlaku_hingga', 'kota_pembuatan_ktp', 'tanggal_pembuatan_ktp')"
+        String query = "INSERT INTO penduduk (nik, nama, tempat_lahir, tanggal_lahir, jenis_kelamin, gol_darah, alamat, rt_rw, kel_desa, kecamatan, agama, status_perkawinan, pekerjaan, kewarganegaraan, foto, tanda_tangan, berlaku_hingga, kota_pembuatan_ktp, tanggal_pembuatan_ktp) "
                 + "VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+
         try (Connection con = ConnectionManager.getConnection();
                 PreparedStatement st = con.prepareStatement(query)) {
 
@@ -232,7 +235,7 @@ public class Penduduk {
             st.setString(17, penduduk.getBerlakuHingga());
             st.setString(18, penduduk.getKotaPembuatanKTP());
             st.setString(19, penduduk.getTanggalPembuatanKTP());
-                    
+
             int rowsInserted = st.executeUpdate();
             return rowsInserted > 0;
 
@@ -242,24 +245,84 @@ public class Penduduk {
         }
     }
 
-    public static Penduduk getData(String NIK){
-        Penduduk dataPenduduk = new Penduduk();
-        String query = "SELECT * FROM penduduk where nik = ?";
+    public static Penduduk getData(String NIK) {
+        Penduduk dataPenduduk = null;
+        String query = "SELECT * FROM penduduk WHERE nik = ?";
 
         try (Connection con = ConnectionManager.getConnection();
                 PreparedStatement st = con.prepareStatement(query)) {
 
             st.setString(1, NIK);
+
             try (ResultSet rs = st.executeQuery()) {
                 if (rs.next()) {
-                    return dataPenduduk;
-                }else{
-                    return null;
+                    dataPenduduk = new Penduduk();
+                    dataPenduduk.setNik(rs.getString("nik"));
+                    dataPenduduk.setNama(rs.getString("nama"));
+                    dataPenduduk.setTempatLahir(rs.getString("tempat_lahir"));
+                    dataPenduduk.setTanggalLahir(rs.getString("tanggal_lahir"));
+                    dataPenduduk.setJenisKelamin(rs.getString("jenis_kelamin"));
+                    dataPenduduk.setGolDarah(rs.getString("gol_darah"));
+                    dataPenduduk.setAlamat(rs.getString("alamat"));
+                    dataPenduduk.setRtRW(rs.getString("rt_rw"));
+                    dataPenduduk.setKelDesa(rs.getString("kel_desa"));
+                    dataPenduduk.setKecamatan(rs.getString("kecamatan"));
+                    dataPenduduk.setAgama(rs.getString("agama"));
+                    dataPenduduk.setStatusPerkawinan(rs.getString("status_perkawinan"));
+                    dataPenduduk.setPekerjaan(rs.getString("pekerjaan"));
+                    dataPenduduk.setKewarganegaraan(rs.getString("kewarganegaraan"));
+                    dataPenduduk.setBerlakuHingga(rs.getString("berlaku_hingga"));
+                    dataPenduduk.setKotaPembuatanKTP(rs.getString("kota_pembuatan_ktp"));
+                    dataPenduduk.setTanggalPembuatanKTP(rs.getString("tanggal_pembuatan_ktp"));
+
+                    // Retrieve foto
+                    InputStream fotoInputStream = rs.getBinaryStream("foto");
+                    if (fotoInputStream != null) {
+                        File fotoFile = new File("foto_" + NIK + ".jpg");
+                        try (FileOutputStream fotoOutputStream = new FileOutputStream(fotoFile)) {
+                            byte[] buffer = new byte[1024];
+                            int bytesRead;
+                            while ((bytesRead = fotoInputStream.read(buffer)) != -1) {
+                                fotoOutputStream.write(buffer, 0, bytesRead);
+                            }
+                        }
+                        dataPenduduk.setFoto(fotoFile);
+                    }
+
+                    // Retrieve tanda tangan
+                    InputStream tandaTanganInputStream = rs.getBinaryStream("tanda_tangan");
+                    if (tandaTanganInputStream != null) {
+                        File tandaTanganFile = new File("ttd_" + NIK + ".jpg");
+                        try (FileOutputStream tandaTanganOutputStream = new FileOutputStream(tandaTanganFile)) {
+                            byte[] buffer = new byte[1024];
+                            int bytesRead;
+                            while ((bytesRead = tandaTanganInputStream.read(buffer)) != -1) {
+                                tandaTanganOutputStream.write(buffer, 0, bytesRead);
+                            }
+                        }
+                        dataPenduduk.setTandaTangan(tandaTanganFile);
+                    }
                 }
             }
-        }catch (Exception ex) {
-            System.out.println("Terjadi kesalahan: " + ex.getMessage());
-            return null;
+        } catch (Exception ex) {
+            System.out.println("Terjadi kesalahan saat mengambil data: " + ex.getMessage());
+        }
+
+        return dataPenduduk;
+    }
+
+    public static boolean deleteData(String NIK) {
+        String query = "DELETE FROM penduduk where nik = ?";
+
+        try (Connection con = ConnectionManager.getConnection();
+                PreparedStatement st = con.prepareStatement(query)) {
+
+            st.setString(1, NIK);
+            int rowDeleted = st.executeUpdate();
+            return rowDeleted > 0;
+        } catch (Exception ex) {
+            System.out.println("Terjadi kesalahan Delete data: " + ex.getMessage());
+            return false;
         }
     }
 }

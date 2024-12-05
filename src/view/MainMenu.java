@@ -2,11 +2,13 @@ package view;
 
 import javax.swing.*;
 
+import controller.PencarianController;
+
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
-public class MainMenu extends JFrame{
+public class MainMenu extends JFrame {
     private JButton perekaman, pencarian, exit;
     private JPanel pesan;
 
@@ -59,13 +61,17 @@ public class MainMenu extends JFrame{
         pencarian.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                
+                String NIK = JOptionPane.showInputDialog("NIK yang ingin dicari");
+                dispose();
+                new PencarianController().showData(NIK);
+                setVisible(false);
             }
         });
-        
+
         exit.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+                setVisible(false);
                 dispose();
             }
         });

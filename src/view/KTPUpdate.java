@@ -8,28 +8,21 @@ import java.io.File;
 import com.toedter.calendar.JDateChooser;
 
 import javax.swing.*;
-import javax.swing.text.DateFormatter;
 import java.util.*;
-import java.time.LocalDate;
-import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
 import java.text.SimpleDateFormat;
 
-import controller.FormControllers;
 import model.classes.Penduduk;
 
-public class FormKTP extends JFrame {
+public class KTPUpdate extends JFrame {
     JFrame frame;
     File photoFile;
     File ttdFile;
 
-    public FormKTP() {
-        inputForm();
-        // setLocationRelativeTo(null);
-        // setSize(500, 700);
+    public KTPUpdate(Penduduk ktp) {
+        inputForm(ktp);
     }
 
-    private void inputForm() {
+    private void inputForm(Penduduk ktp) {
         // setting Frame size and location
         Toolkit toolkit = Toolkit.getDefaultToolkit();
         Dimension screenSize = toolkit.getScreenSize();
@@ -53,6 +46,7 @@ public class FormKTP extends JFrame {
 
         JLabel NIK = new JLabel("NIK");
         JTextField NIKField = new JTextField();
+        NIKField.setText(ktp.getNik());
         NIK.setBounds(50, 75, 400, 25);
         NIKField.setBounds(150, 75, 400, 25);
 
@@ -61,6 +55,7 @@ public class FormKTP extends JFrame {
 
         JLabel nama = new JLabel("Nama");
         JTextField namaField = new JTextField();
+        namaField.setText(ktp.getNama());
         nama.setBounds(50, 100, 400, 25);
         namaField.setBounds(150, 100, 400, 25);
         inputPanel.add(nama);
@@ -68,6 +63,7 @@ public class FormKTP extends JFrame {
 
         JLabel tempatLahir = new JLabel("Tempat Lahir");
         JTextField tempatLahirField = new JTextField();
+        tempatLahirField.setText(ktp.getTempatLahir());
         tempatLahir.setBounds(50, 125, 100, 25);
         tempatLahirField.setBounds(150, 125, 400, 25);
         inputPanel.add(tempatLahir);
@@ -76,9 +72,24 @@ public class FormKTP extends JFrame {
         JLabel tglLahir = new JLabel("Tanggal Lahir");
         tglLahir.setBounds(50, 150, 400, 25);
         inputPanel.add(tglLahir);
-
-        // Date picker untuk tanggal lahir
         JDateChooser tglLahirDatePicker = new JDateChooser();
+
+        try {
+            SimpleDateFormat smplFormater = new SimpleDateFormat("yyyy-MM-dd");
+
+            String dateString = ktp.getTanggalLahir();
+
+            Date tglLahirDate = smplFormater.parse(dateString);
+
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTime(tglLahirDate);
+
+            tglLahirDatePicker.setCalendar(calendar);
+
+        } catch (Exception e) {
+            System.out.println("Error: " + e.getMessage());
+        }
+
         tglLahirDatePicker.setBounds(150, 150, 400, 25);
         inputPanel.add(tglLahirDatePicker);
 
@@ -90,6 +101,17 @@ public class FormKTP extends JFrame {
         jkWanita.setBounds(200, 175, 75, 25);
 
         ButtonGroup jkGroup = new ButtonGroup();
+        switch (ktp.getJenisKelamin()) {
+            case "Pria":
+                jkPria.setSelected(true);
+                break;
+            case "Wanita":
+                jkWanita.setSelected(true);
+                break;
+            default:
+                break;
+        }
+
         jkGroup.add(jkPria);
         jkGroup.add(jkWanita);
 
@@ -108,11 +130,27 @@ public class FormKTP extends JFrame {
         JRadioButton golAB = new JRadioButton("AB");
         golAB.setBounds(300, 200, 50, 25);
 
+        switch (ktp.getJenisKelamin()) {
+            case "A":
+                golA.setSelected(true);
+                break;
+            case "B":
+                golB.setSelected(true);
+                break;
+            case "O":
+                golO.setSelected(true);
+                break;
+            case "AB":
+                golAB.setSelected(true);
+                break;
+            default:
+                break;
+        }
+
         ButtonGroup golGroup = new ButtonGroup();
         golGroup.add(golA);
         golGroup.add(golB);
         golGroup.add(golO);
-        golGroup.add(golB);
         golGroup.add(golAB);
 
         inputPanel.add(golDarah);
@@ -123,6 +161,7 @@ public class FormKTP extends JFrame {
 
         JLabel alamat = new JLabel("Alamat");
         JTextField alamatField = new JTextField();
+        alamatField.setText(ktp.getAlamat());
         alamat.setBounds(50, 225, 400, 25);
         alamatField.setBounds(150, 225, 400, 25);
         inputPanel.add(alamat);
@@ -130,6 +169,7 @@ public class FormKTP extends JFrame {
 
         JLabel rtRW = new JLabel("RT/RW");
         JTextField rtRWField = new JTextField();
+        rtRWField.setText(ktp.getRtRW());
         rtRW.setBounds(50, 250, 400, 25);
         rtRWField.setBounds(150, 250, 50, 25);
         inputPanel.add(rtRW);
@@ -137,6 +177,7 @@ public class FormKTP extends JFrame {
 
         JLabel kelDesa = new JLabel("Kelurahan/Desa");
         JTextField kelDesaField = new JTextField();
+        kelDesaField.setText(ktp.getKelDesa());
         kelDesa.setBounds(50, 275, 400, 25);
         kelDesaField.setBounds(150, 275, 400, 25);
         inputPanel.add(kelDesa);
@@ -144,6 +185,7 @@ public class FormKTP extends JFrame {
 
         JLabel kecamatan = new JLabel("Kecamatan");
         JTextField kecamatanField = new JTextField();
+        kecamatanField.setText(ktp.getKecamatan());
         kecamatan.setBounds(50, 300, 400, 25);
         kecamatanField.setBounds(150, 300, 400, 25);
         inputPanel.add(kecamatan);
@@ -158,6 +200,7 @@ public class FormKTP extends JFrame {
         agamaBox.addItem("ISLAM");
         agamaBox.addItem("HINDU");
         agamaBox.addItem("BUDDHA");
+        agamaBox.setSelectedItem(ktp.getAgama());
         agamaBox.setBounds(150, 325, 400, 25);
 
         inputPanel.add(agama);
@@ -171,6 +214,7 @@ public class FormKTP extends JFrame {
         statusPerkawinanBox.addItem("MENIKAH");
         statusPerkawinanBox.addItem("JANDA");
         statusPerkawinanBox.addItem("DUDA");
+        statusPerkawinanBox.setSelectedItem(ktp.getStatusPerkawinan());
         statusPerkawinanBox.setBounds(175, 350, 400, 25);
 
         inputPanel.add(statusPerkawinan);
@@ -178,26 +222,56 @@ public class FormKTP extends JFrame {
 
         JLabel pekerjaan = new JLabel("Pekerjaan");
         pekerjaan.setBounds(50, 375, 400, 25);
-        inputPanel.add(pekerjaan);
 
         JCheckBox karyawanCB = new JCheckBox("Karyawan Swasta");
         karyawanCB.setBounds(175, 375, 130, 25);
-        inputPanel.add(karyawanCB);
 
         JCheckBox pnsCB = new JCheckBox("PNS");
         pnsCB.setBounds(305, 375, 50, 25);
-        inputPanel.add(pnsCB);
 
         JCheckBox wiraswastaCB = new JCheckBox("Wiraswatsa");
         wiraswastaCB.setBounds(355, 375, 100, 25);
-        inputPanel.add(wiraswastaCB);
 
         JCheckBox akademisiCB = new JCheckBox("Akademisi");
         akademisiCB.setBounds(455, 375, 85, 25);
-        inputPanel.add(akademisiCB);
 
         JCheckBox pengangguranCB = new JCheckBox("Pengangguran");
         pengangguranCB.setBounds(550, 375, 150, 25);
+
+        String[] pekerjaanStr = ktp.getPekerjaan().split(", ");
+        for (String pkj : pekerjaanStr) {
+            switch (pkj) {
+                case "Karyawan Swasta":
+                    karyawanCB.setSelected(true);
+                    ;
+                    break;
+                case "PNS":
+                    pnsCB.setSelected(true);
+                    ;
+                    break;
+                case "Wiraswasta":
+                    wiraswastaCB.setSelected(true);
+                    ;
+                    break;
+                case "Akademisi":
+                    akademisiCB.setSelected(true);
+                    ;
+                    break;
+                case "Pengganguran":
+                    pengangguranCB.setSelected(true);
+                    ;
+                    break;
+
+                default:
+                    break;
+            }
+        }
+
+        inputPanel.add(pekerjaan);
+        inputPanel.add(karyawanCB);
+        inputPanel.add(pnsCB);
+        inputPanel.add(wiraswastaCB);
+        inputPanel.add(akademisiCB);
         inputPanel.add(pengangguranCB);
 
         pengangguranCB.addActionListener(new ActionListener() {
@@ -233,6 +307,19 @@ public class FormKTP extends JFrame {
         JRadioButton wna = new JRadioButton("WNA");
         wna.setBounds(250, 400, 75, 25);
 
+        switch (ktp.getJenisKelamin()) {
+            case "WNI":
+                wni.setSelected(true);
+                ;
+                break;
+            case "B":
+                wna.setSelected(true);
+                ;
+                break;
+            default:
+                break;
+        }
+
         kewarganegaraanGroup.add(wna);
         kewarganegaraanGroup.add(wni);
 
@@ -240,7 +327,13 @@ public class FormKTP extends JFrame {
         inputPanel.add(wna);
 
         JLabel asalNegara = new JLabel("Negara Asal");
-        JTextArea asalNegaraField = new JTextArea();
+        JTextField asalNegaraField = new JTextField();
+        String[] negaraAsal = ktp.getKewarganegaraan().split(" ");
+        String strText="";
+        if (negaraAsal[0].equals("wna")) {
+            strText = negaraAsal[1];
+        }
+        asalNegaraField.setText(strText);
         asalNegara.setBounds(350, 400, 400, 25);
         asalNegaraField.setBounds(425, 400, 400, 25);
         asalNegara.setVisible(false);
@@ -271,7 +364,7 @@ public class FormKTP extends JFrame {
         JButton photoButton = new JButton("Upload Photo");
         photoButton.setBounds(175, 425, 200, 24);
         inputPanel.add(photoButton);
-
+        photoFile = ktp.getFoto();
         photoButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -291,6 +384,8 @@ public class FormKTP extends JFrame {
         ttdButton.setBounds(175, 450, 200, 24);
         inputPanel.add(ttdButton);
 
+        ttdFile = ktp.getTandaTangan();
+
         ttdButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -304,22 +399,42 @@ public class FormKTP extends JFrame {
 
         JLabel masaBerlaku = new JLabel("Berlaku Hingga");
         JTextField masaBerlakuField = new JTextField();
+        NIKField.setText(ktp.getBerlakuHingga());
         masaBerlaku.setBounds(50, 475, 400, 25);
         masaBerlakuField.setBounds(175, 475, 400, 25);
+
         inputPanel.add(masaBerlaku);
         inputPanel.add(masaBerlakuField);
 
         JLabel kotaPembuatan = new JLabel("Kota Pembuatan");
         JTextField kotaPembuatanField = new JTextField();
+        kotaPembuatanField.setText(ktp.getKotaPembuatanKTP());
         kotaPembuatan.setBounds(50, 500, 400, 25);
         kotaPembuatanField.setBounds(175, 500, 400, 25);
         inputPanel.add(kotaPembuatan);
         inputPanel.add(kotaPembuatanField);
 
         JLabel tglPembuatan = new JLabel("Tanggal Pembuatan");
+
         tglPembuatan.setBounds(50, 525, 400, 25);
 
         JDateChooser tglPembuatanField = new JDateChooser();
+
+        try {
+            SimpleDateFormat smplFormater = new SimpleDateFormat("yyyy-MM-dd");
+
+            String dateString = ktp.getTanggalPembuatanKTP();
+
+            Date tglPembuatanDate = smplFormater.parse(dateString);
+
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTime(tglPembuatanDate);
+
+            tglPembuatanField.setCalendar(calendar);
+
+        } catch (Exception e) {
+            System.out.println("Error: " + e.getMessage());
+        }
         tglPembuatanField.setBounds(175, 525, 400, 25);
 
         inputPanel.add(tglPembuatan);
@@ -388,10 +503,10 @@ public class FormKTP extends JFrame {
                 // String tglPembuatanFormatted =
                 // tglPembuatanLocalDate.format(DateTimeFormatter.ofPattern("dd-MM-yyyy"));
 
-                String namaOutput = "Boston";
-                String nikKTP = "1123039";
+                String namaOutput = "John Doe";
+                String nikKTP = "1234567890123456";
                 String tempatLahirOutput = "Bandung";
-                String tanggalLahirlocalDateFormatted = "01-12-2024";
+                String tanggalLahirlocalDateFormatted = "01-01-1990";
                 String jenisKelaminOutput = "Pria";
                 String golDarahOutput = "O";
                 String alamatOutput = "Jl. Mawar No. 1";
@@ -402,11 +517,13 @@ public class FormKTP extends JFrame {
                 String statusKawinOutput = "BELUM_MENIKAH";
                 String pekerjaanOutput = "Karyawan Swasta";
                 String kewarganegaraanOutput = "WNI";
-                File photoFile = new File("C:\\Users\\Canon manalu\\Pictures\\1.png");                
-                File ttdFile = new File("C:\\Users\\Canon manalu\\Pictures\\1.png");                
+                File photoFile = new File(
+                        "\"C:\\Users\\Canon manalu\\Pictures\\Screenshots\\Screenshot 2024-12-04 223357.png\"");
+                File ttdFile = new File(
+                        "\"C:\\Users\\Canon manalu\\Pictures\\Screenshots\\Screenshot 2024-12-04 223357.png\"");
                 String berlakuHinggaOutput = "01-01-2030";
                 String kotaPembuatanOutput = "Bandung";
-                String tglPembuatanFormatted = "03-12-2024";
+                String tglPembuatanFormatted = "01-12-2024";
 
                 if (nikKTP.isEmpty() || namaOutput.isEmpty() || tempatLahirOutput.isEmpty()
                         || tanggalLahirlocalDateFormatted == null ||
